@@ -8,6 +8,7 @@ const auth = require('../src/util/authenticationHandler');
 const sendNotification = require('../libs/sendNotification');
 
 exports.register = async (req, res) => {
+  console.log(req.body);
   try {
     const user_data = await User.findOne({
       where: {

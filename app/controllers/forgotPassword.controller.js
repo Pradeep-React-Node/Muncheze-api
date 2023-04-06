@@ -1,20 +1,21 @@
-const moment = require("moment-timezone");
-const { sendMail } = require("../libs/sendMail");
-const db = require("../models");
+const moment = require('moment-timezone');
+const { sendMail } = require('../libs/sendMail');
+const db = require('../models');
 const Op = db.Sequelize.Op;
 const Otp = db.otp;
 const User = db.users;
-const passwordLib = require("./../libs/generatePassword");
+const passwordLib = require('./../libs/generatePassword');
 
 exports.sendMail = async (req, res) => {
   let { email } = req.body;
+  console.log('email', req.body);
   try {
     const otp = Math.floor(100000 + Math.random() * 900000);
 
     if (!email) {
       res?.status(500).send({
-        status: "failed",
-        message: "Email is required",
+        status: 'failed',
+        message: 'Email is required',
       });
       return;
     }
@@ -27,8 +28,8 @@ exports.sendMail = async (req, res) => {
 
     if (!userRes?.dataValues) {
       res?.status(500).send({
-        status: "failed",
-        message: "User does not exist",
+        status: 'failed',
+        message: 'User does not exist',
       });
       return;
     }
@@ -59,21 +60,21 @@ exports.sendMail = async (req, res) => {
         },
       });
     } else {
-      response = await Otp.insert({ otp, user_id: userRes?.dataValues?.id });
+      response = await Otp.create({ otp, user_id: userRes?.dataValues?.id });
     }
 
     await sendMail({
-      subject: "no-reply",
+      subject: 'no-reply',
       email,
       content: `Your otp is ${otp}\nNote: This OTP is valid only for 5 minutes`,
     });
     res.status(200).send({
-      status: "success",
+      status: 'success',
       data: response,
     });
   } catch (e) {
     res.status(500).send({
-      status: "failed",
+      status: 'failed',
       message: e.message,
     });
   }
@@ -81,11 +82,11 @@ exports.sendMail = async (req, res) => {
 
 exports.verifyOtp = async (req, res) => {
   try {
-    const { otp, user_id } = req.body;
+    let { otp, user_id } = req.body;
     if (!otp || !user_id) {
       res.send({
-        status: "failed",
-        message: "Otp and user id are required",
+        status: 'failed',
+        message: 'Otp and user id are required',
       });
       return;
     }
@@ -102,8 +103,8 @@ exports.verifyOtp = async (req, res) => {
 
     if (!otpFromDb?.dataValues) {
       res.send({
-        status: "failed",
-        message: "Invalid OTP",
+        status: 'failed',
+        message: 'Invalid OTP',
       });
       return;
     }
@@ -111,13 +112,13 @@ exports.verifyOtp = async (req, res) => {
     let user = await User.findOne({ where: { id: user_id } });
 
     res.status(200).send({
-      status: "success",
+      status: 'success',
       otpFromDb,
       user,
     });
   } catch (e) {
     res.send({
-      status: "failed",
+      status: 'failed',
       message: e.message,
     });
   }
@@ -128,8 +129,8 @@ exports.resetPassword = async (req, res) => {
     const { newPassword, user_id } = req.body;
     if (!newPassword || !user_id) {
       res.send({
-        status: "failed",
-        message: "New Password and User Id are required",
+        status: 'failed',
+        message: 'New Password and User Id are required',
       });
       return;
     }
@@ -138,13 +139,13 @@ exports.resetPassword = async (req, res) => {
     var updatedPassword = await User.findOne({ where: { id: user_id } });
     if (updatedPassword) {
       res.send({
-        status: "success",
+        status: 'success',
         data: updatedPassword,
       });
     }
   } catch (e) {
     res.send({
-      status: "failed",
+      status: 'failed',
       message: e.message,
     });
   }

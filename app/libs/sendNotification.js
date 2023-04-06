@@ -1,5 +1,7 @@
-const admin = require("firebase-admin");
-const serviceAccount = require("../../assets/firebase-admin.json");
+const admin = require('firebase-admin');
+// const firebase = require('firebase');
+const serviceAccount = require('../../assets/firebase-admin.json');
+// firebase.initializeApp(serviceAccount);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -16,10 +18,10 @@ module.exports = async (params) => {
     data,
     tokens,
   };
-  var response = await admin?.messaging()?.sendMulticast(message);
+  var response = await firebase?.messaging()?.sendMulticast(message);
   console.log(
     response?.responses?.[0]?.error,
-    "send push notification response"
+    'send push notification response'
   );
   return response;
 };

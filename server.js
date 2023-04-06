@@ -1,42 +1,44 @@
-const express = require("express");
-require("dotenv").config();
-const upload = require("express-fileupload");
-const cors = require("cors");
-const fs = require("fs");
-const Stripe = require("stripe");
+const express = require('express');
+require('dotenv').config();
+const upload = require('express-fileupload');
+const cors = require('cors');
+const fs = require('fs');
+const Stripe = require('stripe');
+const https = require('https');
+
 const stripe = Stripe(
-  "sk_test_51IJ3AIFgpBUqYvdFw5u8AdhkpByjcIDGs73joYYBADYXhOOhXRuT4zBxZSoBVPCDDVND57KYcF2oJGFxvl13PYt5000jflvCtt"
+  'sk_test_51IJ3AIFgpBUqYvdFw5u8AdhkpByjcIDGs73joYYBADYXhOOhXRuT4zBxZSoBVPCDDVND57KYcF2oJGFxvl13PYt5000jflvCtt'
 );
 const app = express();
 
 var corsOptions = {
-  origin: "*",
+  origin: '*',
 };
 
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "5mb" }));
-app.use(express.urlencoded({ limit: "5mb", extended: true }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ limit: '5mb', extended: true }));
 app.use(upload());
-app.use(express.static("./uploads"));
+app.use(express.static('./uploads'));
 
 // app.use(express.json());
 // app.use(express.urlencoded({
 //   extended: true
 // }));
-const routesPath = "./app/routes";
-const db = require("./app/models");
+const routesPath = './app/routes';
+const db = require('./app/models');
 db.sequelize
   .sync()
-  .then(() => console.log("db synced"))
+  .then(() => console.log('db synced'))
   .catch((e) => console.log(e));
 
 const User = db.users;
 
-app.get("/", (req, res) => {
-  res.send({ message: "Welcome to muncheze." });
+app.get('/', (req, res) => {
+  res.send({ message: 'Welcome to muncheze.' });
 });
 
-app.post("/api/checkout", async (req, res) => {
+app.post('/api/checkout', async (req, res) => {
   try {
     console.log(req?.body);
     let user = {};
@@ -48,14 +50,14 @@ app.post("/api/checkout", async (req, res) => {
     } else {
       customer = await stripe.customers.create({
         email: req.body.email,
-        name: "Name",
+        name: 'Name',
         address: {
-          city: "Moradabad",
-          country: "IN",
-          line1: "line 1",
-          line2: "line 2",
+          city: 'Moradabad',
+          country: 'IN',
+          line1: 'line 1',
+          line2: 'line 2',
           postal_code: 244001,
-          state: "Uttar Pradhesh",
+          state: 'Uttar Pradhesh',
         },
       });
 
@@ -70,9 +72,9 @@ app.post("/api/checkout", async (req, res) => {
         )
         .then((num) => {
           if (num >= 1) {
-            console.log("stripe data update in user table");
+            console.log('stripe data update in user table');
           } else {
-            console.log("stripe data not updated");
+            console.log('stripe data not updated');
           }
         })
         .catch((err) => console.log(err));
@@ -80,15 +82,15 @@ app.post("/api/checkout", async (req, res) => {
 
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer.id },
-      { apiVersion: "2020-08-27" }
+      { apiVersion: '2020-08-27' }
     );
     // console.log("yoyoyo", req.body.amount)
     // Create a PaymentIntent with the payment amount, currency, and customer
     const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount * 100,
-      currency: "inr",
+      currency: 'inr',
       customer: customer.id,
-      description: "Food Delivering Services",
+      description: 'Food Delivering Services',
     });
 
     // Send the object keys to the client
@@ -99,11 +101,11 @@ app.post("/api/checkout", async (req, res) => {
       ephemeralKey: ephemeralKey.secret,
     });
   } catch (err) {
-    console.log("err", err.message);
+    console.log('err', err.message);
   }
 });
 
-app.delete("/api/payment/customer/delete/:id", async (req, res) => {
+app.delete('/api/payment/customer/delete/:id', async (req, res) => {
   const id = req.params.id;
   try {
     const deleted = await stripe.customers.del(`${id}`);
@@ -111,11 +113,11 @@ app.delete("/api/payment/customer/delete/:id", async (req, res) => {
       deleted: deleted,
     });
   } catch (err) {
-    console.log("error", err);
+    console.log('error', err);
   }
 });
 
-app.get("/api/payment/customers", async (req, res) => {
+app.get('/api/payment/customers', async (req, res) => {
   try {
     const customers = await stripe.customers.list({
       limit: 10,
@@ -124,13 +126,13 @@ app.get("/api/payment/customers", async (req, res) => {
       customers: customers,
     });
   } catch (err) {
-    console.log("error", err);
+    console.log('error', err);
   }
 });
 
 fs.readdirSync(routesPath).forEach(function (file) {
-  if (file.indexOf(".js")) {
-    let route = require(routesPath + "/" + file);
+  if (file.indexOf('.js')) {
+    let route = require(routesPath + '/' + file);
     route(app);
   }
 });

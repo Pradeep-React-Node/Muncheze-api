@@ -1,11 +1,11 @@
 module.exports = {
-  HOST: 'http://143.198.53.147/',
+  HOST: process.env.DB_URL,
   // USER: "root",
   // PASSWORD: "",
   USER: 'admin',
-  PASSWORD: 'Truck@123',
+  PASSWORD: 'Truck1293',
   // PASSWORD: 'test1234*',
-  DB: 'muncheze',
+  DB: 'munchezedb',
   dialect: 'mysql',
   pool: {
     max: 5,
@@ -32,3 +32,4 @@ module.exports = {
 //     idle: 10000,
 //   },
 // };
+

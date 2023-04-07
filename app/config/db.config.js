@@ -2,10 +2,10 @@ module.exports = {
   HOST: process.env.DB_URL,
   // USER: "root",
   // PASSWORD: "",
-  USER: 'admin',
-  PASSWORD: 'Truck1293',
+  USER: process.env.DB_USER,
+  PASSWORD: process.env.DB_PASSWORD,
   // PASSWORD: 'test1234*',
-  DB: 'munchezedb',
+  DB: process.env.DB_NAME,
   dialect: 'mysql',
   pool: {
     max: 5,

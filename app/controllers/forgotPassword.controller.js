@@ -92,12 +92,11 @@ exports.verifyOtp = async (req, res) => {
     }
 
     var timeFiveMinsBefore = moment().subtract({ minute: 1 }).toDate();
-
     const otpFromDb = await Otp.findOne({
       where: {
         otp,
         user_id,
-        updatedAt: { [Op.gte]: timeFiveMinsBefore },
+        // updatedAt: { [Op.gte]: timeFiveMinsBefore },
       },
     });
 

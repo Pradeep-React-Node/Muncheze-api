@@ -8,6 +8,7 @@ module.exports = (app) => {
 
   router.post('/truck/add', verifyToken, trucks.addTruck);
   router.get('/truck/getall', verifyToken, trucks.getAllTrucksForAdmin);
+  router.get('/truck/alltruck', trucks.getAllTrucks);
   router.get(
     '/truck/getall/customer',
     verifyToken,

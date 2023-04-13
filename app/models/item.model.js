@@ -3,6 +3,9 @@ module.exports = (sequelize, Sequelize) => {
     cost: {
       type: Sequelize.INTEGER,
     },
+    quantity: {
+      type: Sequelize.INTEGER,
+    },
     createdAt: {
       type: Sequelize.DATE,
       defaultValue: new Date(),

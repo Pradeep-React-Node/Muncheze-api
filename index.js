@@ -6,8 +6,11 @@ const fs = require('fs');
 const Stripe = require('stripe');
 const https = require('https');
 
-const stripe = Stripe(
-  'sk_test_51IJ3AIFgpBUqYvdFw5u8AdhkpByjcIDGs73joYYBADYXhOOhXRuT4zBxZSoBVPCDDVND57KYcF2oJGFxvl13PYt5000jflvCtt'
+// const stripe = Stripe(
+//   'sk_test_51IJ3AIFgpBUqYvdFw5u8AdhkpByjcIDGs73joYYBADYXhOOhXRuT4zBxZSoBVPCDDVND57KYcF2oJGFxvl13PYt5000jflvCtt'
+// );
+const stripe = require('stripe')(
+  'sk_test_51MvzkLSCmGOISwexWxrixjmRa33VKMgOQEaZFwZ6oVl03EmPaT7MVap5dt79M1pxuIlyxnfhUi0yaCxrvj5vCMJq00ipyln5lb'
 );
 const app = express();
 
@@ -38,6 +41,73 @@ app.get('/', (req, res) => {
   res.send({ message: 'Welcome to muncheze.' });
 });
 
+app.post('/payment-sheet', async (req, res) => {
+  console.log(req?.body);
+  try {
+    let user = {};
+    user = user?.dataValues || {};
+
+    let customer;
+    if (user?.stripe_id) {
+      customer = await stripe.customers.retrieve(`${user?.stripe_id}`);
+    } else {
+      customer = await stripe.customers.create({
+        email: req.body.email,
+        name: 'Name',
+        address: {
+          city: 'Noida',
+          country: 'IN',
+          line1: 'line 1',
+          line2: 'line 2',
+          postal_code: 244001,
+          state: 'Uttar Pradhesh',
+        },
+      });
+
+      await db.users
+        .update(
+          { stripe_id: customer?.id },
+          {
+            where: {
+              id: req?.body?.user_id,
+            },
+          }
+        )
+        .then((num) => {
+          if (num >= 1) {
+            console.log('stripe data update in user table');
+          } else {
+            console.log('stripe data not updated');
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+    // Use an existing Customer ID if this is a returning customer.
+    // const customer = await stripe.customers.create();
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: '2022-11-15' }
+    );
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: 1099,
+      currency: 'inr',
+      customer: customer.id,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    res.send({
+      paymentIntent: paymentIntent.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customer: customer.id,
+      publishableKey:
+        'pk_test_51MvzkLSCmGOISwexZyAmXJCsn7NcF8iNUz4q1W5xdFWBZgqERrxAznzhH3UHVJNhR37VXg4E3B8XbN8LjfeZ0ySh0069P2iS1L',
+    });
+  } catch (err) {
+    console.log('err', err.message);
+  }
+});
 app.post('/api/checkout', async (req, res) => {
   try {
     console.log(req?.body);
@@ -88,14 +158,18 @@ app.post('/api/checkout', async (req, res) => {
     // Create a PaymentIntent with the payment amount, currency, and customer
     const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount * 100,
-      currency: 'inr',
       customer: customer.id,
+      currency: 'inr',
+      automatic_payment_methods: {
+        enabled: true,
+      },
       description: 'Food Delivering Services',
     });
 
     // Send the object keys to the client
     res.send({
-      publishableKey: process.env.publishable_key, // https://stripe.com/docs/keys#obtain-api-keys
+      publishableKey: process.env.publishable_key,
+      // https://stripe.com/docs/keys#obtain-api-keys
       paymentIntent: paymentIntent.client_secret,
       customer: customer.id,
       ephemeralKey: ephemeralKey.secret,

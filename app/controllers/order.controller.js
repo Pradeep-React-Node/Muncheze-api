@@ -133,6 +133,56 @@ exports.getOrderByUser = async (req, res) => {
       where: {
         user_id: id,
       },
+      include: [
+        {
+          model: User,
+          as: "user_info",
+          attributes: [
+            "firstName",
+            "lastName",
+            "phoneNumber",
+            "isDisabled",
+            "isVerified",
+          ],
+          include: [
+            {
+              model: Address,
+              as: "addresses",
+            },
+          ],
+        },
+        {
+          model: Items,
+          as: "items",
+          include: [
+            {
+              model: Menu,
+              as: "menu_info",
+            },
+          ],
+        },
+        {
+          model: Truck,
+          as: "truck_info",
+          attributes: ["name", "id"],
+        },
+        {
+          model: Payment,
+          as: "payments",
+          attributes: [
+            "id",
+            "payment_type",
+            "payment",
+            "discount",
+            "order_id",
+            "user_id",
+          ],
+        },
+        {
+          model: Status,
+          as: "statuses",
+        },
+      ],
     });
     res.status(200).send({
       data: Order_data,

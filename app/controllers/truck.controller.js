@@ -1,4 +1,4 @@
-const db = require("../models");
+const db = require('../models');
 const Address = db.addresses;
 const User = db.users;
 const Truck = db.trucks;
@@ -11,15 +11,15 @@ exports.addTruck = (req, res) => {
   if (req.decoded.isAdmin || req.decoded.isVendor === true) {
     Truck.create(req.body)
       .then((data) => {
-        res.send({ message: "Truck added successfully", data: data });
+        res.send({ message: 'Truck added successfully', data: data });
       })
       .catch((err) => {
         res.status(500).send({
-          message: err.message || "Some error occurred while adding the truck.",
+          message: err.message || 'Some error occurred while adding the truck.',
         });
       });
   } else {
-    res.status(403).send({ message: "Not authorised as admin or vendor" });
+    res.status(403).send({ message: 'Not authorised as admin or vendor' });
   }
 };
 
@@ -28,14 +28,52 @@ exports.getAllTrucksForAdmin = async (req, res) => {
     const all_trucks = await Truck.findAll({
       include: {
         model: User,
-        as: "user_info",
+        as: 'user_info',
         attributes: [
-          "id",
-          "firstName",
-          "lastName",
-          "phoneNumber",
-          "isDisabled",
-          "isVerified",
+          'id',
+          'firstName',
+          'lastName',
+          'phoneNumber',
+          'isDisabled',
+          'isVerified',
+        ],
+      },
+    });
+    let trucks = all_trucks;
+    let approvedTrucks = trucks.filter(
+      (truck) => truck.isApproved && !truck.isDisabled
+    );
+    let pendingTrucks = trucks.filter(
+      (truck) => !truck.isApproved && !truck.isDisabled
+    );
+    let disabledTrucks = trucks.filter((truck) => truck.isDisabled);
+
+    res.status(200).send({
+      data: {
+        approved: approvedTrucks,
+        pending: pendingTrucks,
+        disabled: disabledTrucks,
+      },
+    });
+  } catch (e) {
+    res.status(500).send({
+      message: e,
+    });
+  }
+};
+exports.getAllTrucks = async (req, res) => {
+  try {
+    const all_trucks = await Truck.findAll({
+      include: {
+        model: User,
+        as: 'user_info',
+        attributes: [
+          'id',
+          'firstName',
+          'lastName',
+          'phoneNumber',
+          'isDisabled',
+          'isVerified',
         ],
       },
     });
@@ -76,44 +114,45 @@ exports.getAllTrucksForCustomer = async (req, res) => {
 
     const all_trucks = await Truck.findAll({
       attributes: [
-        "id",
-        "name",
-        "photo",
-        "latitude",
-        "longitude",
-        "licenseNo",
-        "licensePhotoFront",
-        "licensePhotoBack",
-        "ratings",
-        "joiningDate",
-        "updatedAt",
-        "user_id",
-        "offline",
-        "isApproved",
-        "isDisabled",
-        [sequelize.literal(haversine), "distance"],
+        'id',
+        'name',
+        'photo',
+        'latitude',
+        'longitude',
+        'licenseNo',
+        'licensePhotoFront',
+        'licensePhotoBack',
+        'ratings',
+        'joiningDate',
+        'updatedAt',
+        'user_id',
+        'offline',
+        'isApproved',
+        'isDisabled',
+        [sequelize.literal(haversine), 'distance'],
       ],
       where: {
         [Op.and]: [
-          sequelize.where(sequelize.literal(haversine), "<=", Number(distance)),
+          sequelize.where(sequelize.literal(haversine), '<=', Number(distance)),
         ],
       },
-      order: sequelize.col("distance"),
+      order: sequelize.col('distance'),
       include: {
         model: User,
-        as: "user_info",
+        as: 'user_info',
         attributes: [
-          "id",
-          "firstName",
-          "lastName",
-          "phoneNumber",
-          "isDisabled",
-          "isVerified",
+          'id',
+          'firstName',
+          'lastName',
+          'phoneNumber',
+          'isDisabled',
+          'isVerified',
+          'address',
         ],
         include: {
           model: Address,
-          as: "addresses",
-          attributes: ["pincode", "city"],
+          as: 'addresses',
+          attributes: ['pincode', 'city'],
         },
       },
     });
@@ -121,7 +160,7 @@ exports.getAllTrucksForCustomer = async (req, res) => {
       data: all_trucks,
     });
   } catch (e) {
-    console.log(e, "maheeee");
+    console.log(e, 'maheeee');
     res.status(500).send({
       message: e,
     });
@@ -155,13 +194,13 @@ exports.getTruckById = async (req, res) => {
       },
       include: {
         model: User,
-        as: "user_info",
+        as: 'user_info',
         attributes: [
-          "firstName",
-          "lastName",
-          "phoneNumber",
-          "isDisabled",
-          "isVerified",
+          'firstName',
+          'lastName',
+          'phoneNumber',
+          'isDisabled',
+          'isVerified',
         ],
       },
     });
@@ -186,27 +225,27 @@ exports.getTruckWithMenu = async (req, res) => {
       include: [
         {
           model: Menu,
-          as: "menus",
+          as: 'menus',
           attributes: [
-            "id",
-            "name",
-            "cost",
-            "ratings",
-            "review",
-            "available",
-            "photo",
-            "soldCount",
+            'id',
+            'name',
+            'cost',
+            'ratings',
+            'review',
+            'available',
+            'photo',
+            'soldCount',
           ],
           include: {
             model: Category,
-            as: "category",
-            attributes: ["name", "id"],
+            as: 'category',
+            attributes: ['name', 'id'],
           },
         },
         {
           model: User,
-          as: "user_info",
-          attributes: ["phoneNumber", "firstName", "lastName", "email", "id"],
+          as: 'user_info',
+          attributes: ['phoneNumber', 'firstName', 'lastName', 'email', 'id'],
         },
       ],
     });
@@ -228,23 +267,23 @@ exports.getTruckWithMenuForMobile = async (req, res) => {
         id,
         isApproved: true,
       },
-      attributes: ["id", "name"],
+      attributes: ['id', 'name'],
     });
     const truck_menu_data = await Category.findAll({
       include: [
         {
           model: Menu,
-          as: "food_info",
+          as: 'food_info',
           attributes: [
-            "truck_id",
-            "id",
-            "name",
-            "cost",
-            "ratings",
-            "review",
-            "available",
-            "photo",
-            "soldCount",
+            'truck_id',
+            'id',
+            'name',
+            'cost',
+            'ratings',
+            'review',
+            'available',
+            'photo',
+            'soldCount',
           ],
           where: {
             truck_id: id,
@@ -275,7 +314,7 @@ exports.updateTruck = async (req, res) => {
     })
       .then((num) => {
         if (num >= 1) {
-          res.send({ message: "Truck updated successfully" });
+          res.send({ message: 'Truck updated successfully' });
         } else {
           res.status(500).send({
             message: `Cannot update the truck with id=${id}. Maybe the truck was not found or the update request is empty!`,
@@ -284,10 +323,10 @@ exports.updateTruck = async (req, res) => {
       })
       .catch((err) => {
         res.status(500).send({
-          message: "Error updating the truck with id=" + id,
+          message: 'Error updating the truck with id=' + id,
         });
       });
   } else {
-    res.status(403).send({ message: "Not authorised as admin or vendor" });
+    res.status(403).send({ message: 'Not authorised as admin or vendor' });
   }
 };

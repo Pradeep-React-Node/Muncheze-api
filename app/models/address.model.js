@@ -2,7 +2,7 @@ module.exports = (sequelize, Sequelize) => {
   const Address = sequelize.define('addresses', {
     street: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     city: {
       type: Sequelize.STRING,

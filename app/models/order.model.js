@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Order = sequelize.define("orders", {
+  const Order = sequelize.define('orders', {
     cost: {
       type: Sequelize.INTEGER,
     },
@@ -16,14 +16,14 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: new Date(),
     },
     isCompleted: {
-      type: Sequelize.BOOLEAN,
-      defaultValue: false,
+      type: Sequelize.INTEGER,
+      defaultValue: 0,
     },
     user_id: {
       type: Sequelize.INTEGER,
       references: {
         model: sequelize.models.users,
-        key: "id",
+        key: 'id',
       },
       allowNull: false,
     },
@@ -31,7 +31,7 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       references: {
         model: sequelize.models.trucks,
-        key: "id",
+        key: 'id',
       },
       allowNull: false,
     },
@@ -39,26 +39,26 @@ module.exports = (sequelize, Sequelize) => {
 
   Order.associate = function (models) {
     Order.belongsTo(models.users, {
-      foreignKey: "user_id",
-      targetKey: "id",
-      as: "user_info",
+      foreignKey: 'user_id',
+      targetKey: 'id',
+      as: 'user_info',
     });
     Order.belongsTo(models.trucks, {
-      foreignKey: "truck_id",
-      targetKey: "id",
-      as: "truck_info",
+      foreignKey: 'truck_id',
+      targetKey: 'id',
+      as: 'truck_info',
     });
     Order.hasMany(models.items, {
-      as: "items",
-      foreignKey: "order_id",
+      as: 'items',
+      foreignKey: 'order_id',
     });
     Order.hasOne(models.statuses, {
-      as: "statuses",
-      foreignKey: "order_id",
+      as: 'statuses',
+      foreignKey: 'order_id',
     });
     Order.hasOne(models.payments, {
-      as: "payments",
-      foreignKey: "order_id",
+      as: 'payments',
+      foreignKey: 'order_id',
     });
   };
 

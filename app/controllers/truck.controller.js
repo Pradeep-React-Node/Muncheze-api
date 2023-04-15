@@ -201,6 +201,7 @@ exports.getTruckById = async (req, res) => {
           'phoneNumber',
           'isDisabled',
           'isVerified',
+          'fcmToken',
         ],
       },
     });

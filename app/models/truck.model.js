@@ -24,9 +24,6 @@ module.exports = (sequelize, Sequelize) => {
     ratings: {
       type: Sequelize.DECIMAL(10, 2),
     },
-    isFavorite: {
-      type: Sequelize.ARRAY,
-    },
     joiningDate: {
       type: Sequelize.DATE,
       defaultValue: new Date(),

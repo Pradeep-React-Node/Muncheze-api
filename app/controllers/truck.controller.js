@@ -307,7 +307,11 @@ exports.getTruckWithMenuForMobile = async (req, res) => {
 };
 
 exports.updateTruck = async (req, res) => {
-  if (req.decoded.isAdmin || req.decoded.isVendor === true) {
+  if (
+    req.decoded.isAdmin ||
+    req.decoded.isVendor ||
+    req.decoded.isCustomer === true
+  ) {
     const id = req.params.truck_id;
     const updatedData = { ...req.body, updatedAt: new Date() };
     Truck.update(updatedData, {

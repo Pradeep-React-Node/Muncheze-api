@@ -1,7 +1,12 @@
 const db = require('../models');
 const Favorite = db.favorites;
 const Op = db.Sequelize.Op;
-
+const Address = db.addresses;
+const User = db.users;
+const Truck = db.trucks;
+const Menu = db.menus;
+const Category = db.categories;
+const sequelize = db.Sequelize;
 exports.addFavorite = async (req, res) => {
   try {
     const { truck_id } = req.body;
@@ -56,7 +61,33 @@ exports.getFavoritesByUser = async (req, res) => {
 
     const favorites = await Favorite.findAll({
       where: { user_id },
-      include: { model: db.trucks, as: 'truck' },
+      include: [
+        {
+          model: db.trucks,
+          as: 'truck',
+          include: [
+            {
+              model: Menu,
+              as: 'menus',
+              attributes: [
+                'id',
+                'name',
+                'cost',
+                'ratings',
+                'review',
+                'available',
+                'photo',
+                'soldCount',
+              ],
+              include: {
+                model: Category,
+                as: 'category',
+                attributes: ['name', 'id'],
+              },
+            },
+          ],
+        },
+      ],
     });
 
     res.status(200).send({ data: favorites });
